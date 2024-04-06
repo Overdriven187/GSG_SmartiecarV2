@@ -53,10 +53,10 @@ unsigned long start_time;
 //--------------------------------------------------
 
 // speeds
-int NormalSpeed = 120;
-int SlowSpeed = 90;
-int CurveSpeed = 120;
-int StartSpeed = 120;
+int NormalSpeed = 200;
+int SlowSpeed = 175;
+int CurveSpeed = 190;
+int StartSpeed = 215;
 
 // LCD connection
 int Button = 4;
@@ -138,7 +138,7 @@ void ProgramStopUsingGyro()
   // Go straight for at least x msec
   Gyro_steer_straight();
   temporaryTime = millis();
-  while (millis() < temporaryTime + 1500)
+  while (millis() < temporaryTime + 1200)
   {
     Gyro_steer_straight();
   }

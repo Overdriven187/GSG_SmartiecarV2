@@ -78,10 +78,10 @@ float StraightAngle = 0.0;
 char DrivingDirection = 'U';
 
 // Speeds
-int NormalSpeed = 80;
-int SlowSpeed = 90;
-int CurveSpeed = 80;
-int StartSpeed = 80;
+int NormalSpeed = 100;
+int SlowSpeed = 110;
+int CurveSpeed = 90;
+int StartSpeed = 100;
 
 // obstacle block 'U' for unknown
 char Block = 'U';
@@ -118,7 +118,7 @@ int walldistance = 40;
 ╚██████╔╝╚███╔███╔╝██║ ╚████║    ██║     ╚██████╔╝██║ ╚████║╚██████╗   ██║   ██║╚██████╔╝██║ ╚████║███████║
  ╚═════╝  ╚══╝╚══╝ ╚═╝  ╚═══╝    ╚═╝      ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝
 */
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////
 // ProgramStopUsingGyro()
@@ -171,7 +171,7 @@ void ProgramStopUsingGyro()
   delay(9999999); // wait forever
 }
 
-/////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////
 // Gyro_steer_straight()
 // uses the gyro to orient itself straight to the track
 ////////////////////////////////////////////////////////////////////
@@ -546,6 +546,7 @@ void CurveRightUntilBlock()
   Distance_Front = SpaceUltraSonicFront();
   // go straight to opposite wall
   while (Distance_Front > 50)
+
   {
     Gyro_steer_straight();
     Distance_Front = SpaceUltraSonicFront();
@@ -711,7 +712,7 @@ void ApproachPillar()
     lcd.setRGB(0, 255, 0);
   }
 
-  while (P_height < 40)
+  while (P_height < 30)
   {
     SteerToPillar();
     findNextPillar();
@@ -727,7 +728,19 @@ void ApproachPillar()
 void SteerToPillar()
 {
   int Steering;
-  Steering = (160 - P_x) * 0.3;
+  int SteerTarget;
+
+  if (P_color == 'R')
+  {
+    SteerTarget = P_x + 20;
+  }
+
+  else
+  {
+    SteerTarget = P_x - 20;
+  }
+
+  Steering = (160 - SteerTarget) * 0.3;
   if (Steering > 30.0)
   {
     Steering = 30;
@@ -875,6 +888,19 @@ void EvadeRedPillar()
   LastPillarColor = 'R';
 }
 
+void runCurvesimple()
+{
+  if (DrivingDirection == 'L')
+  {
+    CurveLeftUntilBlock();
+  }
+
+  else
+  {
+    CurveRightUntilBlock();
+  }
+}
+
 /////////////////////////////////////////////////////////////////////
 // runCurve()
 // runs a curve phase
@@ -930,11 +956,41 @@ void runCurve()
 }
 
 /////////////////////////////////////////////////////////////////////
+// runLanesimple()
+// run along one lane with obstacles
+// checks for minimum 1 obstacle, maximum 2 obstacles
+/////////////////////////////////////////////////////////////////////
+void runLanesimple()
+{
+  bool check = false;
+  stopMotor();
+  findNextPillar();
+  lcd.setCursor(0, 0);
+  lcd.print(P_color);
+  lcd.print(" ");
+  lcd.print(P_height);
+  delay(200);
+
+  DriveUntilFirstPillarInLane();
+  ApproachPillar();
+  if (P_color == 'R')
+  {
+    EvadeRedPillar();
+  }
+  else
+  {
+    EvadeGreenPillar();
+  }
+  stopMotor();
+
+  DriveUntilNextCurve();
+}
+/////////////////////////////////////////////////////////////////////
 // runLane()
 // run along one lane with obstacles
 // checks for minimum 1 obstacle, maximum 2 obstacles
 /////////////////////////////////////////////////////////////////////
-void runLane()
+/*void runLane()
 {
   bool check = false;
   stopMotor();
@@ -961,48 +1017,73 @@ void runLane()
     stopMotor();
     // Another pillar in this lane?
     findNextPillar();
-    // check if pillar is in lane
     lcd.setCursor(0, 0);
     lcd.print(P_color);
-    if (P_color != 'U')
+    lcd.print(" ");
+    lcd.print(P_height);
+    delay(200);
+
+    if (P_height > 20)
     {
-      check = CheckPillarIsInLane();
-    }
-    else
-    {
-      check = false;
+      // lane may have 2 pillars
+      DriveUntilFirstPillarInLane();
+      ApproachPillar();
+      if (P_color == 'R')
+      {
+        EvadeRedPillar();
+      }
+      else
+      {
+        EvadeGreenPillar();
+      }
+      stopMotor();
+      // Another pillar in this lane?
+      /*findNextPillar();
+      // check if pillar is in lane
+      lcd.setCursor(0, 0);
+      lcd.print(P_color);
+      if (P_color != 'U')
+      {
+        check = CheckPillarIsInLane();
+      }
+      else
+      {
+        check = false;
+      }
+
+      runMotor(SlowSpeed);
+      if ((P_color == 'R') && (check == true))
+      {
+        ApproachPillar();
+        EvadeRedPillar();
+      }
+      else if ((P_color == 'G') && (check == true))
+      {
+        ApproachPillar();
+        EvadeGreenPillar();
+      }
     }
 
-    runMotor(SlowSpeed);
-    if ((P_color == 'R') && (check == true))
-    {
-      ApproachPillar();
-      EvadeRedPillar();
-    }
-    else if ((P_color == 'G') && (check == true))
-    {
-      ApproachPillar();
-      EvadeGreenPillar();
-    }
+else
+{
+  // lane has ony 1 pillar
+  DriveUntilFirstPillarInLane();
+  ApproachPillar();
+  if (P_color == 'R')
+  {
+    EvadeRedPillar();
   }
-
   else
   {
-    // lane has ony 1 pillar
-    DriveUntilFirstPillarInLane();
-    ApproachPillar();
-    if (P_color == 'R')
-    {
-      EvadeRedPillar();
-    }
-    else
-    {
-      EvadeGreenPillar();
-    }
+    EvadeGreenPillar();
   }
-
-  DriveUntilNextCurve();
 }
+
+DriveUntilNextCurve();
+}
+}
+}
+*/
 
 /////////////////////////////////////////////////////////////////////
 // CheckPillarIsInLane()
@@ -1303,6 +1384,64 @@ void startPhase()
     {
       TurnRight();
     }
+  }
+}
+
+void startPhaseSimple()
+{
+  bool centerRight = false;
+  bool centerLeft = false;
+  float TargetDirection;
+  float angle;
+
+  findNextPillar();
+  // wenn ein hindernis hinter der kurve ist wird die richtung geaendert
+  if (P_x < 110)
+  {
+    DrivingDirection = 'L';
+  }
+  else if (P_x > 210)
+  {
+    DrivingDirection = 'R';
+  }
+
+  runMotor(SlowSpeed);
+
+  while ((Distance_Left < 80.0) && (Distance_Right < 80.0) && (P_color == 'U'))
+  {
+    Distance_Left = SpaceUltraSonicLeft();
+    Distance_Right = SpaceUltraSonicRight();
+    Gyro_steer_straight();
+    findNextPillar();
+  }
+
+  if (Distance_Left >= 80.0)
+  {
+    DrivingDirection = 'L';
+    CurveLeftUntilBlock();
+  }
+  else if (Distance_Right >= 80.0)
+  {
+    DrivingDirection = 'R';
+    CurveRightUntilBlock();
+  }
+
+  if (P_color != 'U')
+  {
+    ApproachPillar();
+
+    if (P_color == 'R')
+    {
+      EvadeRedPillar();
+    }
+    else
+    {
+      EvadeGreenPillar();
+    }
+  }
+  else
+  {
+    runMotor(SlowSpeed);
   }
 }
 
@@ -1633,7 +1772,7 @@ void setup()
   // Steering centered
   center();
 
-  startPhase();
+  startPhaseSimple();
 }
 // Done
 
@@ -1667,19 +1806,12 @@ void loop()
   */
   /////////////////////////////////////////////////////
 
-  while (corners < 8)
-  {
-    runLane();
-    runCurve();
-  }
-
-  LanewithUTurn();
-  runCurve();
+  // LanewithUTurn();
 
   while (corners < 12)
   {
-    runLane();
-    runCurve();
+    runLanesimple();
+    runCurvesimple();
   }
 
   ////////////////////////////////////////////////////
