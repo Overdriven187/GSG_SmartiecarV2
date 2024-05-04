@@ -53,10 +53,10 @@ unsigned long start_time;
 //--------------------------------------------------
 
 // speeds
-int NormalSpeed = 170;
+int NormalSpeed = 190;
 int SlowSpeed = 100;
-int CurveSpeed = 145;
-int StartSpeed = 105;
+int CurveSpeed = 160;
+int StartSpeed = 110;
 
 // LCD connection
 int Button = 4;
@@ -88,7 +88,7 @@ char DrivingDirection = 'U';
 
 // last curve measured
 unsigned long LastCurveTime = 0;
-unsigned long NextCurveDelay = 1300;
+unsigned long NextCurveDelay = 2000;
 
 // used for both Driving Directions (left and right)
 int Walldistance = 30;
@@ -666,27 +666,26 @@ void setup()
   // initalises motor pinmodes from DCmotor.h
   motorsetup();
 
-  lcd.clear();
-  lcd.setRGB(255, 255, 0);
-  lcd.print("Ready");
-
-
-  // wait for button press
-  waitOnButtonPress();
+  // enable raspi handshake
+  raspi_handshake();
 
   // measures all the current reading values
   measureAllCurrentDistances();
 
-
   // checks which wall the car is starting from
   wallDirectionCheck();
-
 
   // set the straightangle to the current IMU angle
   StraightAngle = IMU_getAngle();
 
+  // gets all distances and prints them
+  printAllDistancesToLCD();
+
   // setup done - show green light
   lcd.setRGB(255, 130, 0);
+
+  // wait for button press
+  waitOnButtonPress();
 
   //////////////////////////////////////////////////////
   /*
