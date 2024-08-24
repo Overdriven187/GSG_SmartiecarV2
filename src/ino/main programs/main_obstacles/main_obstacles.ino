@@ -1158,7 +1158,7 @@ void startPhase()
                 }
                 Distance_Front = SpaceUltraSonicFront();
                 runMotor(SlowSpeed);
-                while (Distance_Front > 10)
+                while (Distance_Front > 15)
                 {
                     Gyro_steer_straight();
                     Distance_Front = SpaceUltraSonicFront();
