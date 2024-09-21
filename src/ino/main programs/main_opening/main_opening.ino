@@ -53,10 +53,17 @@ unsigned long start_time;
 //--------------------------------------------------
 
 // speeds
+int NormalSpeed = 200;
+int SlowSpeed = 160;
+int CurveSpeed = 220;
+int StartSpeed = 160;
+
+/* ORIGINAL
 int NormalSpeed = 170;
 int SlowSpeed = 100;
 int CurveSpeed = 145;
 int StartSpeed = 105;
+*/
 
 // LCD connection
 int Button = 4;
@@ -91,7 +98,7 @@ unsigned long LastCurveTime = 0;
 unsigned long NextCurveDelay = 1300;
 
 // used for both Driving Directions (left and right)
-int Walldistance = 30;
+int Walldistance = 27;
 
 // include own modules from local library
 #include "C:\Users\WRO_FE2\Desktop\GSG_SmartiecarV2\src\ino\smartiecar_libs\DCmotor.h"
@@ -152,6 +159,10 @@ void ProgramStopUsingGyro()
   }
 
   stopMotor();
+  runMotor_R(SlowSpeed);
+  delay(1500);
+  stopMotor();
+
   // save current time in milliseconds
   DrivingTime = millis() - start_time;
   lcd.clear();
@@ -297,9 +308,7 @@ void alignLeft()
 void alignRight()
 {
   int Steering;
-
   Distance_Right = SpaceUltraSonicRight();
-
   Steering = (Walldistance - Distance_Right) * 0.9;
   if (Steering > 30.0)
   {
@@ -670,17 +679,14 @@ void setup()
   lcd.setRGB(255, 255, 0);
   lcd.print("Ready");
 
-
   // wait for button press
   waitOnButtonPress();
 
   // measures all the current reading values
   measureAllCurrentDistances();
 
-
   // checks which wall the car is starting from
   wallDirectionCheck();
-
 
   // set the straightangle to the current IMU angle
   StraightAngle = IMU_getAngle();

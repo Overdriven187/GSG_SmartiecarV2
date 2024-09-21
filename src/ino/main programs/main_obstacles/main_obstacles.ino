@@ -47,7 +47,7 @@
 */
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// timer
+// timers
 unsigned long start_time;
 //--------------------------------------------------
 
@@ -78,10 +78,10 @@ float StraightAngle = 0.0;
 char DrivingDirection = 'U';
 
 // Speeds
-int NormalSpeed = 80;
-int SlowSpeed = 90;
-int CurveSpeed = 80;
-int StartSpeed = 80;
+int NormalSpeed = 110;
+int SlowSpeed = 110;
+int CurveSpeed = 90;
+int StartSpeed = 90;
 
 // obstacle block 'U' for unknown
 char Block = 'U';
@@ -144,10 +144,10 @@ void ProgramStopUsingGyro()
     delay(400);
     center();
 
-    // Go straight for at least 400 msec
+    // Go straight for at least x msec
     Gyro_steer_straight();
     temporaryTime = millis();
-    while (millis() < temporaryTime + 3000)
+    while (millis() < temporaryTime + 1200)
     {
         Gyro_steer_straight();
     }
@@ -161,6 +161,10 @@ void ProgramStopUsingGyro()
     }
 
     stopMotor();
+    runMotor_R(SlowSpeed);
+    delay(1500);
+    stopMotor();
+
     // save current time in milliseconds
     DrivingTime = millis() - start_time;
     lcd.clear();
@@ -711,7 +715,7 @@ void ApproachPillar()
         lcd.setRGB(0, 255, 0);
     }
 
-    while (P_height < 40)
+    while (P_height < 25)
     {
         SteerToPillar();
         findNextPillar();
@@ -719,6 +723,7 @@ void ApproachPillar()
         lcd.print(P_height);
         lcd.print("    ");
     }
+    // the roboter drives very close to the pillar and then avoids it which might be to late. what to change?
 }
 /////////////////////////////////////////////////////////////////////
 // SteerToPillar()
@@ -1158,7 +1163,7 @@ void startPhase()
                 }
                 Distance_Front = SpaceUltraSonicFront();
                 runMotor(SlowSpeed);
-                while (Distance_Front > 15)
+                while (Distance_Front > 10)
                 {
                     Gyro_steer_straight();
                     Distance_Front = SpaceUltraSonicFront();
@@ -1250,6 +1255,14 @@ void startPhase()
             }
             else
             {
+                if (Distance_Left > Distance_Right)
+                {
+                    DrivingDirection = 'L';
+                }
+                else
+                {
+                    DrivingDirection = 'R';
+                }
                 // Problem: cannot find driving drection
             }
         }
@@ -1679,7 +1692,6 @@ void loop()
         runCurve();
     }
 
-    LanewithUTurn();
     runCurve();
 
     while (corners < 12)

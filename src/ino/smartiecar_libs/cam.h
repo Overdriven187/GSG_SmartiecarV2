@@ -1,5 +1,17 @@
 int Picturemiddle_x = 0;
 int Picturemiddle_y = 0;
+/*int ledpins[] = {1, 2, 3, 4, 13, 14, 15, 16}
+
+void
+TurnFlashOn()
+{
+    for (int i = < 0; i < 8; ++)
+    {
+        pinMode(ledpins[i], OUTPUT);
+        digitalWrite(ledpins[i], HIGH);
+    }
+}
+*/
 
 // own split function since arduino doesn't have a default one
 void splitString(String input, char delimiter, String output[], int &count)
